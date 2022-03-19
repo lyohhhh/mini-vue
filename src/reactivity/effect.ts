@@ -1,13 +1,13 @@
 class ReactiveEffect {
   private _fn: Function;
-  constructor(fn: Function) {
+  constructor(fn: Function, public scheduler?: Function) {
     this._fn = fn;
   }
 
-  run(): void {
+  run(): Function {
     // 执行当前方法时 将 this 赋值给 activedEffect
     activedEffect = this;
-    this._fn();
+    return this._fn();
   }
 }
 
@@ -52,7 +52,13 @@ export function trigger<T>(target: T, key: string | symbol): void {
   let dep = depsMap.get(key);
   // 遍历执行 fn 方法
   for (let effect of dep) {
-    effect.run();
+    // 如果存在 scheduler 执行scheduler
+    if (effect.scheduler) {
+      effect.scheduler();
+    } else {
+      // 否则执行 run
+      effect.run();
+    }
   }
 }
 
@@ -62,8 +68,12 @@ let activedEffect;
 /**
  * @description 创建effect
  * @param { Funciton } fn 监听函数
+ * @param { opt }
+ * @returns { Function }
  */
-export function effect(fn: Function): void {
-  const _effect = new ReactiveEffect(fn);
+export function effect(fn: Function, opt: any = {}): Function {
+  const _effect = new ReactiveEffect(fn, opt.scheduler);
   _effect.run();
+  // 返回 runner
+  return _effect.run.bind(_effect);
 }

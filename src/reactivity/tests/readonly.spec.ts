@@ -10,6 +10,7 @@ describe("reactivty", () => {
     expect(observed.age).toBe(18);
   });
 
+  // 修改 readonly 值是否会弹出警告
   it("readonly warning", () => {
     console.warn = jest.fn();
     const user = { age: 18 };

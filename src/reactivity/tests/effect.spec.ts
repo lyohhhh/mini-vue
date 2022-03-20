@@ -1,4 +1,4 @@
-import { effect } from "../effect";
+import { effect, stop } from "../effect";
 import { reactive } from "../reactive";
 
 describe("effect", () => {
@@ -7,8 +7,10 @@ describe("effect", () => {
     const observed = reactive<{ age: number }>(original);
     //  reactive 与 original 不同
     expect(original).not.toBe(observed);
-    //  判断 observed.count 是否等于 1
+    //  判断 observed.count 是否等于 18
     expect(observed.age).toBe(18);
+    observed.age = 19;
+    expect(observed.age).toBe(19);
   });
 
   it("test effect running return func", () => {
@@ -72,5 +74,36 @@ describe("effect", () => {
     run();
     // count == 2
     expect(count).toBe(2);
+  });
+
+  it("stop", () => {
+    let dummy;
+    const obj = reactive({ age: 18 });
+    const runner = effect(() => {
+      dummy = obj.age;
+    });
+
+    obj.age = 19;
+    expect(dummy).toBe(19);
+    stop(runner);
+    obj.age = 20;
+    expect(dummy).toBe(19);
+    runner();
+    expect(dummy).toBe(20);
+  });
+
+  it("onStop", () => {
+    const obj = reactive({ age: 18 });
+
+    const onStop = jest.fn();
+    let dummy;
+    const runner = effect(
+      () => {
+        dummy = obj.age;
+      },
+      { onStop }
+    );
+    stop(runner);
+    expect(onStop).toBeCalledTimes(1);
   });
 });

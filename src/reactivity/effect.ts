@@ -1,5 +1,11 @@
+import { extend } from "../shared";
+import { EffectOptions } from "../types/effect";
+
 class ReactiveEffect {
   private _fn: Function;
+  public deps = [];
+  public active = true;
+  public onStop?: () => void;
   constructor(fn: Function, public scheduler?: Function) {
     this._fn = fn;
   }
@@ -9,6 +15,27 @@ class ReactiveEffect {
     activedEffect = this;
     return this._fn();
   }
+
+  stop(): void {
+    // 清除过了就不再清除
+    if (this.active) {
+      clearEffect(this);
+      // 如果传入了 onStop 执行 onStop 回调
+      if (this.onStop) {
+        this.onStop();
+      }
+      this.active = false;
+    }
+  }
+}
+/**
+ * @description 清除所有effect
+ * @param effect
+ */
+function clearEffect(effect) {
+  effect.deps.forEach((dep: Set<ReactiveEffect>) => {
+    dep.delete(effect);
+  });
 }
 
 // 依赖收集的容器
@@ -36,8 +63,12 @@ export function track<T>(target: T, key: string | symbol): void {
     // 建立映射关系
     depsMap.set(key, dep);
   }
+  // 没有 effect
+  if (!activedEffect) return;
   // 将 activedEffect 添加到 dep中
   dep.add(activedEffect);
+  // 反向添加 dep stop方法
+  activedEffect.deps.push(dep);
 }
 
 /**
@@ -68,12 +99,21 @@ let activedEffect;
 /**
  * @description 创建effect
  * @param { Funciton } fn 监听函数
- * @param { opt }
+ * @param { opt }`
  * @returns { Function }
  */
-export function effect(fn: Function, opt: any = {}): Function {
+export function effect(fn: Function, opt: EffectOptions = {}): Function {
   const _effect = new ReactiveEffect(fn, opt.scheduler);
   _effect.run();
+  // 考虑之后的多个参数
+  extend(_effect, opt);
+  const runner: any = _effect.run.bind(_effect);
+  // 绑定当前effect
+  runner._effect = _effect;
   // 返回 runner
-  return _effect.run.bind(_effect);
+  return runner;
+}
+
+export function stop(runner) {
+  runner._effect!.stop();
 }

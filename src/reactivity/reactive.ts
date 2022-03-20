@@ -21,3 +21,26 @@ export function readonly<T extends object>(raw: T): T {
 function createActiviedObject(raw, baseHandles) {
   return new Proxy(raw, baseHandles);
 }
+
+export const enum ReactiveFlags {
+  IS_REACTIVE = "__v_isReavtive",
+  IS_READONLY = "__v_isReadonly",
+}
+
+/**
+ * @description 判断是否为响应式对象
+ * @param target
+ * @returns { boolean } 是否是响应式对象
+ */
+export function isReactive(target): boolean {
+  return !!target[ReactiveFlags.IS_REACTIVE];
+}
+
+/**
+ * @description 判断是否为只读对象
+ * @param target
+ * @returns { boolean } 是否是只读对象
+ */
+export function isReadonly(target): boolean {
+  return !!target[ReactiveFlags.IS_READONLY];
+}

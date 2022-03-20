@@ -1,5 +1,5 @@
 import { effect } from "../effect";
-import { reactive } from "../reactive";
+import { isReactive, reactive } from "../reactive";
 
 describe("reactivty", () => {
   it("happy path", () => {
@@ -15,8 +15,16 @@ describe("reactivty", () => {
     // age => person.age + 1
     expect(age).toBe(19);
     // set => 触发依赖 => age => 19
-    // person.age++;
-    // // age => person.age + 1
-    // expect(age).toBe(20);
+    person.age++;
+    // age => person.age + 1
+    expect(age).toBe(20);
+  });
+
+  it("is reactive", () => {
+    const person = reactive({
+      age: 18,
+    });
+
+    expect(isReactive(person)).toBe(true);
   });
 });

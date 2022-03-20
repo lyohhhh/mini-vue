@@ -1,4 +1,4 @@
-import { readonly } from "../reactive";
+import { isReadonly, readonly } from "../reactive";
 
 describe("reactivty", () => {
   it("happy path", () => {
@@ -17,5 +17,14 @@ describe("reactivty", () => {
     const observed = readonly<{ age: number }>(user);
     observed.age = 19;
     expect(console.warn).toBeCalled();
+  });
+
+  // 是否是 只读 对象
+  it("is readonly", () => {
+    const person = readonly({
+      age: 18,
+    });
+
+    expect(isReadonly(person)).toBe(true);
   });
 });

@@ -21,3 +21,16 @@ export function reactive<T extends object>(raw: T): T {
     },
   });
 }
+
+export function readonly<T extends object>(raw: T): T {
+  return new Proxy(raw, {
+    get(target, key) {
+      const res = Reflect.get(target, key);
+      return res;
+    },
+    set(target, key, value) {
+      console.warn(`${String(key)} can't update, because this is readonly`);
+      return true;
+    },
+  });
+}

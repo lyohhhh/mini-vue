@@ -75,17 +75,19 @@ describe("effect", () => {
     // count == 2
     expect(count).toBe(2);
   });
-
   it("stop", () => {
     let dummy;
     const obj = reactive({ age: 18 });
     const runner = effect(() => {
       dummy = obj.age;
     });
-
+    obj.age;
     obj.age = 19;
     expect(dummy).toBe(19);
+    // stop 之后清除了 收集的依赖 -> set 时应该不会重新触发依赖
     stop(runner);
+    // get 又重新收集依赖 -> 导致 set 操作时又会触发依赖
+    console.log(obj.age);
     obj.age = 20;
     expect(dummy).toBe(19);
     runner();

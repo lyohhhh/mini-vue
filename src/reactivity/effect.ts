@@ -1,6 +1,12 @@
 import { extend } from "../shared";
 import { EffectOptions } from "../types/effect";
 
+// 依赖收集的容器
+const targetMap = new Map();
+// 定义一个变量 获取 effect 中的 fn
+let activedEffect;
+// 定义 是否需要收集依赖
+let shouldTrack: boolean = false;
 class ReactiveEffect {
   private _fn: Function;
   public deps = [];
@@ -11,9 +17,23 @@ class ReactiveEffect {
   }
 
   run(): Function {
+    // 判断是否 stop 是的话直接返回 fn
+    // 否则 将收集依赖
+    if (!this.active) {
+      return this._fn();
+    }
+
+    shouldTrack = true;
     // 执行当前方法时 将 this 赋值给 activedEffect
+    // 需要将 activedEffect 放在 fn 执行之前
+    // fn 执行时会执行 get 操作 -> 收集依赖时 activedEffect 为空
     activedEffect = this;
-    return this._fn();
+    // 获取 fn 返回值 并且返回
+    const result = this._fn();
+    // 执行完之后 shouldTrack 为 false 清空全局变量
+    shouldTrack = false;
+    // 将返回值返回
+    return result;
   }
 
   stop(): void {
@@ -36,10 +56,8 @@ function clearEffect(effect) {
   effect.deps.forEach((dep: Set<ReactiveEffect>) => {
     dep.delete(effect);
   });
+  effect.deps.length = 0;
 }
-
-// 依赖收集的容器
-const targetMap = new Map();
 
 /**
  * @description 收集依赖
@@ -47,6 +65,9 @@ const targetMap = new Map();
  * @param key
  */
 export function track<T>(target: T, key: string | symbol): void {
+  // 是否需要收集依赖
+  if (!isTracking()) return;
+
   // 一个target => 一个key => 一个dep
   let depsMap = targetMap.get(target);
   // 初始化时 depsMap 获取不到
@@ -63,12 +84,18 @@ export function track<T>(target: T, key: string | symbol): void {
     // 建立映射关系
     depsMap.set(key, dep);
   }
-  // 没有 effect
-  if (!activedEffect) return;
+  // // 没有 effect
+  // if (!activedEffect) return;
+  // // 不需要手机依赖
+  // if (!shouldTrack) return;
   // 将 activedEffect 添加到 dep中
   dep.add(activedEffect);
   // 反向添加 dep stop方法
   activedEffect.deps.push(dep);
+}
+
+function isTracking(): boolean {
+  return shouldTrack && activedEffect !== undefined;
 }
 
 /**
@@ -79,6 +106,10 @@ export function track<T>(target: T, key: string | symbol): void {
 export function trigger<T>(target: T, key: string | symbol): void {
   // 获取 target 的映射 Map
   let depsMap = targetMap.get(target);
+
+  // 防止为了没有收集依赖 就触发
+  if (!depsMap) return;
+
   // 获取 key 的映射 Set
   let dep = depsMap.get(key);
   // 遍历执行 fn 方法
@@ -92,9 +123,6 @@ export function trigger<T>(target: T, key: string | symbol): void {
     }
   }
 }
-
-// 定义一个变量 获取 effect 中的 fn
-let activedEffect;
 
 /**
  * @description 创建effect

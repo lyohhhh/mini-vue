@@ -27,4 +27,24 @@ describe("reactivty", () => {
 
     expect(isReactive(person)).toBe(true);
   });
+  // TODO
+  // 嵌套对象收集依赖 以及触发依赖
+  it("watch depth object change", () => {
+    const original = {
+      age: 18,
+      company: {
+        name: "test",
+        members: 18,
+      },
+      friends: ["Tom", "Jack"],
+    };
+    const observed = reactive(original);
+    let dummy;
+    effect(() => {
+      dummy = original.company.members;
+    });
+    expect(dummy).toBe(18);
+    observed.company.members = 19;
+    expect(dummy).toBe(19);
+  });
 });

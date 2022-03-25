@@ -1,6 +1,6 @@
 import { track, trigger } from "./effect";
-import { ReactiveFlags } from "./reactive";
-
+import { ReactiveFlags, reactive, readonly } from "./reactive";
+import { isObject } from "../shared";
 /**
  * @description 创建 get
  * @param { boolean } isReadonly 是否是只读对象
@@ -8,17 +8,29 @@ import { ReactiveFlags } from "./reactive";
  */
 function createGetter(isReadonly: boolean = false) {
   return function get(target, key) {
+    // 获取 目标
     const res = Reflect.get(target, key);
 
+    // 判读是否是响应式对象
     if (ReactiveFlags.IS_REACTIVE == key) {
       return !isReadonly;
+      // 是否是只读对象
     } else if (ReactiveFlags.IS_READONLY == key) {
       return isReadonly;
     }
 
+    // 不是只读对象才收集依赖
+    // 只读对象 只能 get 不能 set
+    // 手机依赖无作用
     if (!isReadonly) {
       // 依赖收集
       track(target, key);
+    }
+
+    // 对象嵌套 递归收集依赖
+    if (isObject(res)) {
+      // 如果是 只读属性
+      return isReadonly ? readonly(res) : reactive(res);
     }
     return res;
   };

@@ -75,6 +75,7 @@ describe("effect", () => {
     // count == 2
     expect(count).toBe(2);
   });
+
   it("stop", () => {
     let dummy;
     const obj = reactive({ age: 18 });

@@ -39,7 +39,15 @@ describe("reactivty", () => {
       friends: ["Tom", "Jack"],
     };
     const observed = reactive(original);
+    let dummy;
+    const runner = effect(() => {
+      dummy = observed.company.members;
+    });
     expect(isReactive(observed.company)).toBe(true);
     expect(isReactive(observed.friends)).toBe(true);
+    expect(dummy).toBe(18);
+    observed.company.members = 19;
+    expect(observed.company.members).toBe(19);
+    expect(dummy).toBe(19);
   });
 });

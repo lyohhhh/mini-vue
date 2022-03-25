@@ -2,7 +2,7 @@ import { extend } from "../shared";
 import { EffectOptions } from "../types/effect";
 
 // 依赖收集的容器
-const targetMap = new Map();
+const targetMap: Map<unknown, any> = new Map();
 // 定义一个变量 获取 effect 中的 fn
 let activedEffect;
 // 定义 是否需要收集依赖
@@ -69,7 +69,7 @@ export function track<T>(target: T, key: string | symbol): void {
   if (!isTracking()) return;
 
   // 一个target => 一个key => 一个dep
-  let depsMap = targetMap.get(target);
+  let depsMap: Map<typeof key, any> = targetMap.get(target);
   // 初始化时 depsMap 获取不到
   // 需要手动存
   if (!depsMap) {
@@ -78,7 +78,7 @@ export function track<T>(target: T, key: string | symbol): void {
     targetMap.set(target, depsMap);
   }
 
-  let dep = depsMap.get(key);
+  let dep: Set<typeof key> = depsMap.get(key);
   if (!dep) {
     dep = new Set();
     // 建立映射关系
@@ -88,6 +88,9 @@ export function track<T>(target: T, key: string | symbol): void {
   // if (!activedEffect) return;
   // // 不需要手机依赖
   // if (!shouldTrack) return;
+
+  // 如果 deps 中有 activedEffect
+  if (dep.has(activedEffect)) return;
   // 将 activedEffect 添加到 dep中
   dep.add(activedEffect);
   // 反向添加 dep stop方法

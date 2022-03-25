@@ -27,4 +27,19 @@ describe("reactivty", () => {
 
     expect(isReadonly(person)).toBe(true);
   });
+
+  // 嵌套数据 只读对象
+  it("depth object readonly", () => {
+    const original = {
+      age: 18,
+      company: {
+        name: "test",
+        members: 18,
+      },
+      friends: ["Tom", "Jack"],
+    };
+    const observed = readonly(original);
+    expect(isReadonly(observed.company)).toBe(true);
+    expect(isReadonly(observed.friends)).toBe(true);
+  });
 });

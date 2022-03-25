@@ -27,9 +27,9 @@ describe("reactivty", () => {
 
     expect(isReactive(person)).toBe(true);
   });
-  // TODO
-  // 嵌套对象收集依赖 以及触发依赖
-  it("watch depth object change", () => {
+
+  // 嵌套数据 可响应式对象
+  it("depth object reactive", () => {
     const original = {
       age: 18,
       company: {
@@ -39,12 +39,7 @@ describe("reactivty", () => {
       friends: ["Tom", "Jack"],
     };
     const observed = reactive(original);
-    let dummy;
-    effect(() => {
-      dummy = original.company.members;
-    });
-    expect(dummy).toBe(18);
-    observed.company.members = 19;
-    expect(dummy).toBe(19);
+    expect(isReactive(observed.company)).toBe(true);
+    expect(isReactive(observed.friends)).toBe(true);
   });
 });

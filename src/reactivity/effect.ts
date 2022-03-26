@@ -7,7 +7,7 @@ const targetMap: Map<unknown, any> = new Map();
 let activedEffect;
 // 定义 是否需要收集依赖
 let shouldTrack: boolean = false;
-class ReactiveEffect {
+export class ReactiveEffect {
   private _fn: Function;
   public deps = [];
   public active = true;

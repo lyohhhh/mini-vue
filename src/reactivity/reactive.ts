@@ -1,4 +1,8 @@
-import { mutableHandlers, readonlyHandles } from "./baseHandles";
+import {
+  mutableHandlers,
+  readonlyHandles,
+  shallowReadonlyHandles,
+} from "./baseHandles";
 
 /**
  * @description 创建响应式对象
@@ -16,6 +20,10 @@ export function reactive<T extends object>(raw: T): T {
  */
 export function readonly<T extends object>(raw: T): T {
   return createActiviedObject(raw, readonlyHandles);
+}
+
+export function shallowReadonly<T extends object>(raw: T): T {
+  return createActiviedObject(raw, shallowReadonlyHandles);
 }
 
 function createActiviedObject(raw, baseHandles) {

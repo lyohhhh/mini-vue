@@ -1,12 +1,13 @@
 import { track, trigger } from "./effect";
 import { ReactiveFlags, reactive, readonly } from "./reactive";
-import { isObject } from "../shared";
+import { extend, isObject } from "../shared";
 /**
  * @description 创建 get
  * @param { boolean } isReadonly 是否是只读对象
+ * @param { boolean } shallow 是否浅层对象
  * @returns { any } 获取的值
  */
-function createGetter(isReadonly: boolean = false) {
+function createGetter(isReadonly: boolean = false, shallow: boolean = false) {
   return function get(target, key) {
     // 获取 目标
     const res = Reflect.get(target, key);
@@ -17,6 +18,10 @@ function createGetter(isReadonly: boolean = false) {
       // 是否是只读对象
     } else if (ReactiveFlags.IS_READONLY == key) {
       return isReadonly;
+    }
+
+    if (shallow) {
+      return res;
     }
 
     // 不是只读对象才收集依赖
@@ -69,3 +74,11 @@ export const readonlyHandles = {
     return true;
   },
 };
+
+const shallowReadonlyGet = createGetter(true, true);
+/**
+ * @description 创建表层 readonly 对象
+ */
+export const shallowReadonlyHandles = extend({}, readonlyHandles, {
+  get: shallowReadonlyGet,
+});

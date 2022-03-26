@@ -7,6 +7,7 @@ class Refimpl<T> {
   // 收集依赖的箱子
   public dep: Set<typeof this._value>;
   private _rawValue: T;
+  public __v_isRef__: boolean = true;
   constructor(val: T) {
     this._rawValue = val;
     this._value = convert(val);
@@ -55,4 +56,18 @@ function trackRef(ref: Refimpl<unknown>) {
  */
 export function ref<T>(val: T): Refimpl<T> {
   return new Refimpl<typeof val>(val);
+}
+
+/**
+ * @description 判断是否是 ref 对象
+ */
+export function isRef(ref) {
+  return !!ref.__v_isRef__;
+}
+
+/**
+ * @description 返回 ref 的值
+ */
+export function unRef(ref) {
+  return isRef(ref) ? ref.value : ref;
 }

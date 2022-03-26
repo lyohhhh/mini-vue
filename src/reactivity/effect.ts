@@ -88,7 +88,13 @@ export function track<T>(target: T, key: string | symbol): void {
   // if (!activedEffect) return;
   // // 不需要手机依赖
   // if (!shouldTrack) return;
+  trackEffects(dep);
+}
 
+/**
+ * @description 收集依赖
+ */
+export function trackEffects(dep: Set<any>) {
   // 如果 deps 中有 activedEffect
   if (dep.has(activedEffect)) return;
   // 将 activedEffect 添加到 dep中
@@ -97,7 +103,7 @@ export function track<T>(target: T, key: string | symbol): void {
   activedEffect.deps.push(dep);
 }
 
-function isTracking(): boolean {
+export function isTracking(): boolean {
   return shouldTrack && activedEffect !== undefined;
 }
 
@@ -115,6 +121,14 @@ export function trigger<T>(target: T, key: string | symbol): void {
 
   // 获取 key 的映射 Set
   let dep = depsMap.get(key);
+
+  triggerEffects(dep);
+}
+
+/**
+ * @description 触发依赖
+ */
+export function triggerEffects(dep: Set<any>) {
   // 遍历执行 fn 方法
   for (let effect of dep) {
     // 如果存在 scheduler 执行scheduler

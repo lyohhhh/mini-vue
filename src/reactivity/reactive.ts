@@ -9,7 +9,7 @@ import {
  * @param { T } raw
  * @returns { T }
  */
-export function reactive<T extends object>(raw: T): T {
+export function reactive<T extends object | unknown>(raw: T): T {
   return createActiviedObject(raw, mutableHandlers);
 }
 

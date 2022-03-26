@@ -1,5 +1,5 @@
 import { effect } from "../effect";
-import { isReactive, reactive } from "../reactive";
+import { isProxy, isReactive, reactive } from "../reactive";
 
 describe("reactivty", () => {
   it("happy path", () => {
@@ -49,5 +49,13 @@ describe("reactivty", () => {
     observed.company.members = 19;
     expect(observed.company.members).toBe(19);
     expect(dummy).toBe(19);
+  });
+
+  it("is proxy", () => {
+    const person = reactive({
+      age: 18,
+    });
+
+    expect(isProxy(person)).toBe(true);
   });
 });

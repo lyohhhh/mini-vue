@@ -52,3 +52,12 @@ export function isReactive(target): boolean {
 export function isReadonly(target): boolean {
   return !!target[ReactiveFlags.IS_READONLY];
 }
+
+/**
+ * @description 判断是否为Proxy对象
+ * @param target
+ * @returns { boolean } 是否是只读对象
+ */
+export function isProxy(target): boolean {
+  return isReactive(target) || isReadonly(target);
+}

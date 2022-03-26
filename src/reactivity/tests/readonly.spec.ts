@@ -1,4 +1,4 @@
-import { isReadonly, readonly } from "../reactive";
+import { isProxy, isReadonly, readonly } from "../reactive";
 
 describe("reactivty", () => {
   it("happy path", () => {
@@ -41,5 +41,14 @@ describe("reactivty", () => {
     const observed = readonly(original);
     expect(isReadonly(observed.company)).toBe(true);
     expect(isReadonly(observed.friends)).toBe(true);
+  });
+
+  // 是否是 只读 对象
+  it("is proxy", () => {
+    const person = readonly({
+      age: 18,
+    });
+
+    expect(isProxy(person)).toBe(true);
   });
 });

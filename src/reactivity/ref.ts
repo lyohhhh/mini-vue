@@ -71,3 +71,21 @@ export function isRef(ref) {
 export function unRef(ref) {
   return isRef(ref) ? ref.value : ref;
 }
+
+/**
+ * @description 修改 ref 不用使用 .value 访问值
+ */
+export function proxyRefs(proxyWithRefs) {
+  return new Proxy(proxyWithRefs, {
+    get(t, k) {
+      return unRef(Reflect.get(t, k));
+    },
+    set(t, k, v) {
+      if (isRef(t[k]) && !isRef(v)) {
+        return (t[k].value = v);
+      } else {
+        return Reflect.set(t, k, v);
+      }
+    },
+  });
+}

@@ -1,4 +1,4 @@
-export type EffectOptions = {
+declare interface EffectOptions {
   scheduler?: () => void;
   onStop?: () => void;
-};
+}

@@ -1,5 +1,4 @@
-import { extend } from "../shared";
-import { EffectOptions } from "../types/effect";
+import { extend } from "../shared/index";
 
 // 依赖收集的容器
 const targetMap: Map<unknown, any> = new Map();

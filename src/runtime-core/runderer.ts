@@ -7,8 +7,6 @@ export function render(vnode: VNode, container: HTMLElement) {
 }
 
 function patch(vnode: VNode, container: HTMLElement) {
-  console.log(vnode);
-
   if (typeof vnode.type === "string") {
     // 处理 Element
     processElement(vnode, container);

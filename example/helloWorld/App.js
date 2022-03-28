@@ -7,12 +7,13 @@ export const App = {
         id: "root",
         class: ["text", "text-bold"],
       },
-      "啊啊啊"
+      `hello ${this.list.join(",")}`
     );
   },
   setup() {
+    let list = ["你好", "世界", "你好", "明天"];
     return {
-      msg: "world ",
+      list,
     };
   },
 };

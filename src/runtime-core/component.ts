@@ -60,6 +60,6 @@ function finishComponentSetup(instance: Instance) {
   // 查看是否有 render 函数
   if (component.render) {
     // 有的话
-    instance.render = component.render;
+    instance.render = component.render.bind(instance.setupState);
   }
 }

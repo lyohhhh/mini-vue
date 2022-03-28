@@ -19,8 +19,8 @@ describe("computed", () => {
 
     // lazy 不执行 .value 时不会被调用
     expect(getter).not.toHaveBeenCalled();
-
     // 执行 .value getter 应该被调用一次
+    // 执行了 getter -> 触发 user get -> 收集依赖
     expect(val.value).toBe(18);
     expect(getter).toHaveBeenCalledTimes(1);
 
@@ -29,6 +29,7 @@ describe("computed", () => {
     expect(getter).toHaveBeenCalledTimes(1);
 
     // 发生改变不执行 .value 时不会被调用
+    // 触发依赖
     user.age = 19;
     expect(getter).toHaveBeenCalledTimes(1);
 

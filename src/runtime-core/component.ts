@@ -1,3 +1,5 @@
+import { PublicInstanceProxyHandlers } from "./componentPublicInstance";
+
 /**
  * 创建组件实例 获取实例
  */
@@ -5,6 +7,7 @@ export function createComponentInstance(vnode: VNode): Instance {
   const instance: Instance = {
     type: vnode.type,
     vnode,
+    setupState: {},
   };
 
   return instance;
@@ -28,6 +31,13 @@ export function setupComponent(instance: Instance) {
 function setupStatefulComponent(instance: Instance) {
   // 获取组件中的 setup
   const component = instance.vnode.type;
+
+  // 通过 Proxy 实现 vue2 中挂载原型上的方法
+  instance.proxy = new Proxy<object>(
+    { _: instance },
+    // 统一 proxy 获取属性
+    PublicInstanceProxyHandlers
+  );
 
   const { setup } = component;
 
@@ -60,8 +70,6 @@ function finishComponentSetup(instance: Instance) {
   // 查看是否有 render 函数
   if (component.render) {
     // 有的话
-    // render 函数中可能使用了 this
-    // 所以在赋值给实例之前 将 this 指向 setup return 的对象上
-    instance.render = component.render.bind(instance.setupState);
+    instance.render = component.render;
   }
 }

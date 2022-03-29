@@ -31,10 +31,14 @@ function mountComponent(vnode: VNode, container: HTMLElement) {
 function setupRenderEffect(instance: Instance, container: HTMLElement) {
   if (instance.render) {
     // 返回的 虚拟节点
-    const subTree = instance.render();
+    // render 函数中可能使用了 this
+    // 所以在赋值给实例之前 将 this 指向 proxy 代理的对象上
+    const subTree = instance.render.call(instance.proxy);
     // 对返回的 虚拟节点进行挂载
     // vnode -> element => mountElement
     patch(subTree, container);
+    // 将根元素节点 挂载在 setupState 上
+    instance.el = subTree.el;
   }
 }
 /**
@@ -59,6 +63,7 @@ async function mountElement(vnode: VNode, container: HTMLElement) {
 function mountTag(vnode: VNode): Promise<HTMLElement> {
   return new Promise((resolve) => {
     const el = document.createElement(<string>vnode.type);
+    vnode.el = el;
     resolve(el);
   });
 }

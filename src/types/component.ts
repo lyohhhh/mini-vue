@@ -27,11 +27,14 @@ declare interface VNode {
   type: Component;
   props?: object;
   children?: string | VNode[];
+  el?: HTMLElement | null;
 }
 
 declare interface Instance {
   vnode: VNode;
-  setupState?: object | Function;
+  setupState: object;
   type: Component;
   render?: () => VNode;
+  el?: HTMLElement | null;
+  proxy?: ProxyHandler<object>;
 }

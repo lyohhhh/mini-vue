@@ -20,15 +20,20 @@ function createGetter(isReadonly: boolean = false, shallow: boolean = false) {
       return isReadonly;
     }
 
-    if (shallow) {
+    if (shallow && isReadonly) {
       return res;
     }
 
     // 不是只读对象才收集依赖
     // 只读对象 只能 get 不能 set
     // 手机依赖无作用
-    if (!isReadonly) {
+    if (shallow && !isReadonly) {
       // 依赖收集
+      track(target, key);
+      return res;
+    }
+
+    if (!shallow && !isReadonly) {
       track(target, key);
     }
 
@@ -62,6 +67,15 @@ export const mutableHandlers = {
   get,
   set,
 };
+
+const shallowReactiveGet = createGetter(false, true);
+
+/**
+ * @description 创建表层 reactive 对象
+ */
+export const shallowReactiveHandles = extend({}, mutableHandlers, {
+  get: shallowReactiveGet,
+});
 
 const readonlyGet = createGetter(true);
 /**

@@ -121,6 +121,7 @@ export function trigger<T>(target: T, key: string | symbol): void {
   // 获取 key 的映射 Set
   let dep = depsMap.get(key);
 
+  if (!dep) return;
   triggerEffects(dep);
 }
 

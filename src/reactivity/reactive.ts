@@ -1,6 +1,7 @@
 import {
   mutableHandlers,
   readonlyHandles,
+  shallowReactiveHandles,
   shallowReadonlyHandles,
 } from "./baseHandles";
 
@@ -24,6 +25,10 @@ export function readonly<T extends object>(raw: T): T {
 
 export function shallowReadonly<T extends object>(raw: T): T {
   return createActiviedObject(raw, shallowReadonlyHandles);
+}
+
+export function shallowReactive<T extends object>(raw: T): T {
+  return createActiviedObject(raw, shallowReactiveHandles);
 }
 
 function createActiviedObject(raw, baseHandles) {

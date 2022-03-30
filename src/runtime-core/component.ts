@@ -1,3 +1,4 @@
+import { initProps } from "./componentProps";
 import { PublicInstanceProxyHandlers } from "./componentPublicInstance";
 
 /**
@@ -8,6 +9,7 @@ export function createComponentInstance(vnode: VNode): Instance {
     type: vnode.type,
     vnode,
     setupState: {},
+    props: {},
   };
 
   return instance;
@@ -17,11 +19,11 @@ export function createComponentInstance(vnode: VNode): Instance {
  * 初始化组件
  */
 export function setupComponent(instance: Instance) {
+  const { props } = instance.vnode;
   // TODO
   // 初始化
-  // initProps
+  initProps(instance, props);
   // initSlots
-
   // 初始化一个有状态的组件 -> 函数组件没有状态
   setupStatefulComponent(instance);
 }
@@ -33,11 +35,14 @@ function setupStatefulComponent(instance: Instance) {
   const component = instance.vnode.type;
 
   // 通过 Proxy 实现 vue2 中挂载原型上的方法
+  // this props ....
   instance.proxy = new Proxy<object>(
     { _: instance },
     // 统一 proxy 获取属性
     PublicInstanceProxyHandlers
   );
+
+  console.log(instance);
 
   const { setup } = component;
 

@@ -15,3 +15,7 @@ export const isObject = (target: any): boolean => {
 export const hasChanged = (val, newVal) => {
   return !Object.is(val, newVal);
 };
+
+export const hasOwn = (target: object, key: string | symbol): boolean => {
+  return Object.prototype.hasOwnProperty.call(target, key);
+};

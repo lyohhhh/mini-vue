@@ -33,6 +33,7 @@ function setupRenderEffect(instance: Instance, container: HTMLElement) {
     // 返回的 虚拟节点
     // render 函数中可能使用了 this
     // 所以在赋值给实例之前 将 this 指向 proxy 代理的对象上
+    // 包括 props 都是通过代理来访问的
     const subTree = instance.render.call(instance.proxy);
     // 对返回的 虚拟节点进行挂载
     // vnode -> element => mountElement

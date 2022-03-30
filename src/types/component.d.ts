@@ -25,7 +25,7 @@ declare interface Component extends Option {
 
 declare interface VNode {
   type: Component;
-  props?: object;
+  props: object;
   children?: string | VNode[];
   el?: HTMLElement | null;
   shapeFlag: int;
@@ -38,4 +38,5 @@ declare interface Instance {
   render?: () => VNode;
   el?: HTMLElement | null;
   proxy?: ProxyHandler<object>;
+  props: object;
 }

@@ -28,6 +28,7 @@ declare interface VNode {
   props?: object;
   children?: string | VNode[];
   el?: HTMLElement | null;
+  shapeFlag: int;
 }
 
 declare interface Instance {

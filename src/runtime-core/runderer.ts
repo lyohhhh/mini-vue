@@ -75,6 +75,16 @@ function mountAttributes(vnode: VNode, container: HTMLElement) {
   const { props } = vnode;
   for (let key in props) {
     const val = props[key];
+
+    // 如果是绑定的事件
+    // 绑定事件
+    // 跳过本次循环
+    if (isEvent(key)) {
+      const evName = key.slice(2).toLocaleLowerCase();
+      container.addEventListener(evName, val);
+      continue;
+    }
+
     if (Array.isArray(val)) {
       container.setAttribute(key, val.join(" "));
     } else {
@@ -97,4 +107,12 @@ function mountChildren(vnode: VNode, container: HTMLElement) {
       patch(item, container);
     });
   }
+}
+
+/**
+ * 判读是否是事件
+ * @returns { boolean } 是| 否
+ */
+function isEvent(str: string): boolean {
+  return /^on[A-Z]/.test(str);
 }

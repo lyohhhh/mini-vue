@@ -9,7 +9,7 @@ const PublicPropertiesMap = {
 
 export const PublicInstanceProxyHandlers = {
   get({ _: instance }, key: string | symbol) {
-    const { props, setupState } = instance;
+    const { props, setupState } = instance as Instance;
     // setup 中的数据
     if (hasOwn(setupState, key)) {
       return setupState[key];

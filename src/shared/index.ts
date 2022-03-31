@@ -19,3 +19,17 @@ export const hasChanged = (val, newVal) => {
 export const hasOwn = (target: object, key: string | symbol): boolean => {
   return Object.prototype.hasOwnProperty.call(target, key);
 };
+
+const nameRE = /-(\w)/g;
+
+export const camelize = (str: string): string => {
+  return str.replace(nameRE, (_, s: string) => (s ? s.toUpperCase() : ""));
+};
+
+export const capitalize: (str: string) => string = (str: string): string => {
+  return str.charAt(0).toUpperCase() + str.slice(1);
+};
+
+export function toEventNameHandle(str: string): string {
+  return str ? `on${capitalize(str)}` : "";
+}

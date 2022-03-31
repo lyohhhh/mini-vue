@@ -1,3 +1,5 @@
+type Emit = (ctx: Instance, event: string, ...args: any) => void;
+
 declare interface Option {
   data?: object | Function;
   methods?: object;
@@ -8,7 +10,7 @@ declare interface Option {
 }
 
 declare interface Component extends Option {
-  setup?: (props?: object) => object | Function;
+  setup?: (props?: object, ctx: Context) => object | Function;
   render?: () => VNode;
   beforeCreate?: () => void;
   created?: () => void;
@@ -21,6 +23,10 @@ declare interface Component extends Option {
   beforeDestroy?: () => void;
   destroyed?: () => void;
   errorCaptured?: () => void;
+}
+
+declare interface Context {
+  emit: Emit;
 }
 
 declare interface VNode {
@@ -39,4 +45,5 @@ declare interface Instance {
   el?: HTMLElement | null;
   proxy?: ProxyHandler<object>;
   props: object;
+  emit: Emit;
 }

@@ -1,5 +1,13 @@
 import { ShapeFlags } from "../shared/shapeFlags";
 
+/**
+ * @description 1. 正常element ： "div", {}, 'hello'
+ * @description 2. Component ： Component, { props, emit }
+ * @param type
+ * @param props
+ * @param children
+ * @returns
+ */
 export function createVNode(type, props?, children?): VNode {
   const vnode: VNode = {
     type,

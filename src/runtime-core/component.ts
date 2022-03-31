@@ -1,3 +1,5 @@
+import { shallowReadonly } from "../reactivity/reactive";
+import { emit } from "./componentEmits";
 import { initProps } from "./componentProps";
 import { PublicInstanceProxyHandlers } from "./componentPublicInstance";
 
@@ -10,8 +12,11 @@ export function createComponentInstance(vnode: VNode): Instance {
     vnode,
     setupState: {},
     props: {},
+    emit: () => {},
   };
-
+  // 使用 bind 将 instance 实例传入
+  // 用户 只穿入 event
+  instance.emit = emit.bind(null, instance) as any;
   return instance;
 }
 
@@ -41,15 +46,15 @@ function setupStatefulComponent(instance: Instance) {
     // 统一 proxy 获取属性
     PublicInstanceProxyHandlers
   );
-
-  console.log(instance);
-
   const { setup } = component;
 
   if (setup) {
     // 有可能是 object 有可能是 function
     // 将 props 传给 setup
-    const setupResult = setup(instance.props);
+    const setupResult = setup(shallowReadonly(instance.props), {
+      // 绑定event
+      emit: instance.emit,
+    });
 
     handleSetupResult(instance, setupResult);
   }

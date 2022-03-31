@@ -5,7 +5,9 @@ export const App = {
   name: "App",
   render() {
     window.self = this;
-    return h("div", {}, [h(HelloWorld, { msg: "children component" })]);
+    return h("div", {}, [
+      h(HelloWorld, { msg: "children component", onEmitMsgLog: this.onAdd }),
+    ]);
   },
   setup() {
     let list = ["你好", "世界", "你好", "明天"];
@@ -14,6 +16,7 @@ export const App = {
       msg: "world",
       list,
       ev,
+      onAdd: (msg) => console.log(msg),
     };
   },
 };

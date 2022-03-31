@@ -95,4 +95,8 @@ const shallowReadonlyGet = createGetter(true, true);
  */
 export const shallowReadonlyHandles = extend({}, readonlyHandles, {
   get: shallowReadonlyGet,
+  set(target, key, value) {
+    console.warn(`${String(key)} can't update, because this is readonly`);
+    return true;
+  },
 });

@@ -5,6 +5,7 @@ import { hasOwn } from "../shared";
 // eg: $el $option $slots $props
 const PublicPropertiesMap = {
   $el: (o: Instance) => o.el,
+  $slots: (o: Instance) => o.slots,
 };
 
 export const PublicInstanceProxyHandlers = {

@@ -46,4 +46,5 @@ declare interface Instance {
   proxy?: ProxyHandler<object>;
   props: object;
   emit: Emit;
+  slots?: object;
 }

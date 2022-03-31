@@ -105,7 +105,7 @@ function mountChildren(vnode: VNode, container: HTMLElement) {
     // TODO
     // 数组类型
     (children as VNode[]).forEach((item) => {
-      patch(item, container);
+      item && patch(item, container);
     });
   }
 }

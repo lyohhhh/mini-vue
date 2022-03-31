@@ -8,7 +8,7 @@ declare interface Option {
 }
 
 declare interface Component extends Option {
-  setup?: () => object | Function;
+  setup?: (props?: object) => object | Function;
   render?: () => VNode;
   beforeCreate?: () => void;
   created?: () => void;

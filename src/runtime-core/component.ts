@@ -48,7 +48,8 @@ function setupStatefulComponent(instance: Instance) {
 
   if (setup) {
     // 有可能是 object 有可能是 function
-    const setupResult = setup();
+    // 将 props 传给 setup
+    const setupResult = setup(instance.props);
 
     handleSetupResult(instance, setupResult);
   }

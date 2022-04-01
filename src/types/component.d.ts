@@ -33,7 +33,7 @@ declare interface VNode {
   type: Component;
   props: object;
   children?: string | VNode[];
-  el?: HTMLElement | null;
+  el?: HTMLElement | Text | null;
   shapeFlag: int;
 }
 
@@ -42,7 +42,7 @@ declare interface Instance {
   setupState: object;
   type: Component;
   render?: () => VNode;
-  el?: HTMLElement | null;
+  el?: HTMLElement | Text | null;
   proxy?: ProxyHandler<object>;
   props: object;
   emit: Emit;

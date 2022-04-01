@@ -1,4 +1,4 @@
-import { h } from "../../lib/guide-vue.esm.js";
+import { h, createTextVNode } from "../../lib/guide-vue.esm.js";
 import { Foo } from "./Foo.js";
 export const App = {
   name: "App",
@@ -8,15 +8,34 @@ export const App = {
       // h(Foo, {}, [h("p", {}, "Foo1"), h("p", {}, "Foo2")]),
       h(
         Foo,
-        {},
         {
-          header: (count) => h("p", {}, "header---" + count),
-          footer: h("p", {}, "footer---"),
+          msg: "你好 props",
+          onMainClick() {
+            console.log("emit in app");
+          },
+        },
+        {
+          header: (count) => [
+            h("p", {}, "header---" + count),
+            createTextVNode("你好"),
+          ],
+
+          footer: [
+            h(
+              "p",
+              {
+                onClick() {
+                  console.log(`footer clicked `);
+                },
+              },
+              "footer---"
+            ),
+            createTextVNode(123_456_789),
+          ],
         }
       ),
+      createTextVNode("createTextNode"),
     ]);
   },
-  setup() {
-    return {};
-  },
+  setup() {},
 };

@@ -1,5 +1,6 @@
 import { ShapeFlags } from "../shared/shapeFlags";
 import { createComponentInstance, setupComponent } from "./component";
+import { Fragment, Text } from "./vnode";
 
 export function render(vnode: VNode, container: HTMLElement) {
   // 调用 patch 方法以便后续对 vnode 进行操作
@@ -7,11 +8,17 @@ export function render(vnode: VNode, container: HTMLElement) {
 }
 
 function patch(vnode: VNode, container: HTMLElement) {
+  // debugger;
   const { type } = vnode;
   switch (type) {
-    case "Fragment":
+    case Fragment:
       // Fragment 不创建标签 直接添加在 container 上
       processFragment(vnode, container);
+      break;
+
+    case Text:
+      // 子节点为字符串
+      processText(vnode, container);
       break;
     default:
       if (vnode.shapeFlag & ShapeFlags.ELEMENT_NODE) {
@@ -59,6 +66,18 @@ function processElement(vnode: VNode, container: HTMLElement) {
   mountElement(vnode, container);
 }
 /**
+ * 处理 Text
+ */
+function processText(vnode: VNode, container: HTMLElement) {
+  // 获取到 string
+  const { children } = vnode;
+  // 创建文本节点
+  const textNode = (vnode.el = document.createTextNode(children as string));
+  // 添加到元素上
+  container.append(textNode);
+}
+
+/**
  * 处理 Fragment
  */
 function processFragment(vnode: VNode, container: HTMLElement) {
@@ -69,23 +88,15 @@ function processFragment(vnode: VNode, container: HTMLElement) {
 }
 /**
  * 挂载到页面上
+ * 移除 Promise 防止 createTextVNode 创建在第一个元素上
  */
-async function mountElement(vnode: VNode, container: HTMLElement) {
-  const el = await mountTag(vnode);
+function mountElement(vnode: VNode, container: HTMLElement) {
+  // const el = await mountTag(vnode);
+  const el = document.createElement(<string>vnode.type);
+  vnode.el = el;
   mountAttributes(vnode, el);
   mountChildren(vnode, el);
   container.append(el);
-}
-
-/**
- * 创建标签
- */
-function mountTag(vnode: VNode): Promise<HTMLElement> {
-  return new Promise((resolve) => {
-    const el = document.createElement(<string>vnode.type);
-    vnode.el = el;
-    resolve(el);
-  });
 }
 
 /**

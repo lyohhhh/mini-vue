@@ -7,12 +7,21 @@ export function render(vnode: VNode, container: HTMLElement) {
 }
 
 function patch(vnode: VNode, container: HTMLElement) {
-  if (vnode.shapeFlag & ShapeFlags.ELEMENT_NODE) {
-    // 处理 Element
-    processElement(vnode, container);
-  } else if (vnode.shapeFlag & ShapeFlags.STATEFUL_COMPONENT) {
-    // 处理组件
-    processComponent(vnode, container);
+  const { type } = vnode;
+  switch (type) {
+    case "Fragment":
+      // Fragment 不创建标签 直接添加在 container 上
+      processFragment(vnode, container);
+      break;
+    default:
+      if (vnode.shapeFlag & ShapeFlags.ELEMENT_NODE) {
+        // 处理 Element
+        processElement(vnode, container);
+      } else if (vnode.shapeFlag & ShapeFlags.STATEFUL_COMPONENT) {
+        // 处理组件
+        processComponent(vnode, container);
+      }
+      break;
   }
 }
 
@@ -42,11 +51,21 @@ function setupRenderEffect(instance: Instance, container: HTMLElement) {
     instance.el = subTree.el;
   }
 }
+
 /**
  * 处理 element
  */
 function processElement(vnode: VNode, container: HTMLElement) {
   mountElement(vnode, container);
+}
+/**
+ * 处理 Fragment
+ */
+function processFragment(vnode: VNode, container: HTMLElement) {
+  // 省略  const el = await mountTag(vnode);
+  //       mountAttributes(vnode, el);
+  // 直接将 children 添加在 container 上
+  mountChildren(vnode, container);
 }
 /**
  * 挂载到页面上

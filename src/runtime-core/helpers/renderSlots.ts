@@ -5,9 +5,9 @@ export const renderSlots = (slots, name: string, props) => {
   if (slot) {
     // 作用域插槽
     if (typeof slot === "function") {
-      return createVNode("div", null, slot(props));
+      return createVNode("Fragment", null, slot(props));
     } else {
-      return createVNode("div", null, slot);
+      return createVNode("Fragment", null, slot);
     }
   }
 };

@@ -51,15 +51,33 @@ function setupStatefulComponent(instance: Instance) {
   const { setup } = component;
 
   if (setup) {
+    // 将当前组件实例赋值
+    setCurrentInstance(instance);
     // 有可能是 object 有可能是 function
     // 将 props 传给 setup
     const setupResult = setup(shallowReadonly(instance.props), {
       // 绑定event
       emit: instance.emit,
     });
-
+    // 将当前组件实例清空
+    setCurrentInstance(null);
+    // 对 setup 返回回来的值进行挂载
     handleSetupResult(instance, setupResult);
   }
+}
+
+let currentInstance: null | Instance = null;
+/**
+ * 获取当前组件实例
+ * 必须在当前组件的 setup 中获取
+ * 在 setup 中获取的时候 currentInstance 才有值
+ */
+export function getCurrentInstance(): null | Instance {
+  return currentInstance;
+}
+
+function setCurrentInstance(instance: Instance | null) {
+  currentInstance = instance;
 }
 
 /**

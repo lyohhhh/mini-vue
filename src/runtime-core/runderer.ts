@@ -2,12 +2,22 @@ import { ShapeFlags } from "../shared/shapeFlags";
 import { createComponentInstance, setupComponent } from "./component";
 import { Fragment, Text } from "./vnode";
 
-export function render(vnode: VNode, container: HTMLElement) {
+export function render(
+  vnode: VNode,
+  container: HTMLElement,
+  parentComponent: Instance | null = null
+) {
   // 调用 patch 方法以便后续对 vnode 进行操作
-  patch(vnode, container);
+  patch(vnode, container, parentComponent);
 }
 
-function patch(vnode: VNode, container: HTMLElement) {
+// 传入 parentComponent 为了 provide 和 inject
+// 在 父级元素上获取注入的数据
+function patch(
+  vnode: VNode,
+  container: HTMLElement,
+  parentComponent: Instance | null = null
+) {
   // debugger;
   const { type } = vnode;
   switch (type) {
@@ -26,19 +36,28 @@ function patch(vnode: VNode, container: HTMLElement) {
         processElement(vnode, container);
       } else if (vnode.shapeFlag & ShapeFlags.STATEFUL_COMPONENT) {
         // 处理组件
-        processComponent(vnode, container);
+        processComponent(vnode, container, parentComponent);
       }
       break;
   }
 }
 
-function processComponent(vnode: VNode, container: HTMLElement) {
+function processComponent(
+  vnode: VNode,
+  container: HTMLElement,
+  parentComponent: Instance | null = null
+) {
   // 1.先挂载组件
-  mountComponent(vnode, container);
+  mountComponent(vnode, container, parentComponent);
 }
-function mountComponent(vnode: VNode, container: HTMLElement) {
+function mountComponent(
+  vnode: VNode,
+  container: HTMLElement,
+  parentComponent: Instance | null = null
+) {
+  // debugger;
   // 1.先创建组件实例 获取实例
-  const instance = createComponentInstance(vnode);
+  const instance = createComponentInstance(vnode, parentComponent);
   // 2.调用 setup
   setupComponent(instance);
   // 3.调用 render
@@ -53,7 +72,7 @@ function setupRenderEffect(instance: Instance, container: HTMLElement) {
     const subTree = instance.render.call(instance.proxy);
     // 对返回的 虚拟节点进行挂载
     // vnode -> element => mountElement
-    patch(subTree, container);
+    patch(subTree, container, instance);
     // 将根元素节点 挂载在 setupState 上
     instance.el = subTree.el;
   }

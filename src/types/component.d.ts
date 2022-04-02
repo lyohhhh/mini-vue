@@ -47,4 +47,6 @@ declare interface Instance {
   props: object;
   emit: Emit;
   slots?: object;
+  provides: object;
+  parent: Instance | null;
 }

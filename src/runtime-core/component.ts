@@ -7,11 +7,16 @@ import { initSlots } from "./componentSlots";
 /**
  * 创建组件实例 获取实例
  */
-export function createComponentInstance(vnode: VNode): Instance {
+export function createComponentInstance(
+  vnode: VNode,
+  parent: Instance | null
+): Instance {
   const instance: Instance = {
     type: vnode.type,
     vnode,
+    parent,
     setupState: {},
+    provides: parent ? parent.provides : {},
     props: {},
     emit: () => {},
     slots: {},
@@ -83,12 +88,17 @@ function setCurrentInstance(instance: Instance | null) {
 /**
  * 判断 setup 返回的值 不同类型进行不同操作
  */
-function handleSetupResult(instance: Instance, setupResult: object | Function) {
+function handleSetupResult(
+  instance: Instance,
+  setupResult: object | (() => VNode)
+) {
   // TODO
   // Function
 
   if (typeof setupResult === "object") {
     instance.setupState = setupResult;
+  } else if (typeof setupResult === "function") {
+    instance.render = setupResult;
   }
 
   // 保证 render 函数中是有值的

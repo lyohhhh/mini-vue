@@ -28,7 +28,8 @@ const Foo3 = {
     const count = inject("count");
     const name = inject("name");
     const age = inject("age");
-    return () => h("p", null, `Foo3-${count}-${name}-${age}`);
+    const school = inject("school", () => "清华大学");
+    return () => h("p", null, `Foo3-${count}-${name}-${age}-${school}`);
   },
 };
 export const App = {

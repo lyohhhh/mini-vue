@@ -50,3 +50,9 @@ declare interface Instance {
   provides: object;
   parent: Instance | null;
 }
+
+declare interface RendererOptions {
+  createElement: (type: string) => HTMLElement;
+  patchProp: (el: HTMLElement, key: string, value: Function | string) => void;
+  insert: (el: HTMLElement, container: HTMLElement) => void;
+}

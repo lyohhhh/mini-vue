@@ -3,6 +3,8 @@ import { createComponentInstance, setupComponent } from "./component";
 import { createAppAPI } from "./createApp";
 import { Fragment, Text } from "./vnode";
 
+// 使用 createRouterer 接口
+// 内部的  createElement, patchProp, insert 可以用户自己定义
 export function createRenderer(options: RendererOptions) {
   const { createElement, patchProp, insert } = options;
   function render(

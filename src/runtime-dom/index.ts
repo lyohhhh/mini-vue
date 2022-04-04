@@ -29,8 +29,11 @@ function insert(el: HTMLElement, container: HTMLElement) {
   container.append(el);
 }
 
+// 提供 createRenderer 函数
+// 内部返回 createApp 接口
 const renderer = createRenderer({ createElement, patchProp, insert });
 
+// 返回createApp 接口 -》 返回的是 createRouterer 内部返回的createAoo
 export function createApp(rootComponent: Component) {
   return renderer.createApp(rootComponent);
 }

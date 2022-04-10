@@ -49,6 +49,8 @@ declare interface Instance {
   slots?: object;
   provides: object;
   parent: Instance | null;
+  isMounted: boolean;
+  prevTree?: VNode;
 }
 
 declare interface RendererOptions {

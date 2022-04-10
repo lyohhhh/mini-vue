@@ -1,3 +1,4 @@
+import { proxyRefs } from "../reactivity";
 import { shallowReadonly } from "../reactivity/reactive";
 import { emit } from "./componentEmits";
 import { initProps } from "./componentProps";
@@ -20,6 +21,7 @@ export function createComponentInstance(
     props: {},
     emit: () => {},
     slots: {},
+    isMounted: false,
   };
   // 使用 bind 将 instance 实例传入
   // 用户 只穿入 event
@@ -96,7 +98,7 @@ function handleSetupResult(
   // Function
 
   if (typeof setupResult === "object") {
-    instance.setupState = setupResult;
+    instance.setupState = proxyRefs(setupResult);
   } else if (typeof setupResult === "function") {
     instance.render = setupResult;
   }

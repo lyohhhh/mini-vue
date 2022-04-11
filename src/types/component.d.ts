@@ -58,3 +58,11 @@ declare interface RendererOptions {
   patchProp: (el: HTMLElement, key: string, value: Function | string) => void;
   insert: (el: HTMLElement, container: HTMLElement) => void;
 }
+
+declare namespace Vue {
+  type VNode = VNode;
+  type Component = Component;
+  type Context = Context;
+  type Instance = Instance;
+  type RendererOptions = RendererOptions;
+}

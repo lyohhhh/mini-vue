@@ -46,3 +46,5 @@ export function toEventNameHandle(str: string): string {
 export const isEvent: (str: string) => boolean = (str): boolean => {
   return /^on[A-Z]/.test(str);
 };
+
+export const EMPEY_OBJECT = {};

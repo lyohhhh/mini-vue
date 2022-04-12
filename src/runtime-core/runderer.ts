@@ -1,4 +1,5 @@
 import { effect } from "../reactivity/effect";
+import { EMPEY_OBJECT } from "../shared";
 import { ShapeFlags } from "../shared/shapeFlags";
 import { createComponentInstance, setupComponent } from "./component";
 import { createAppAPI } from "./createApp";
@@ -170,8 +171,8 @@ export function createRenderer(options: RendererOptions) {
     // console.log("update ");
 
     let el = (n2.el = n1.el);
-    let oldProps = n1.props || {};
-    let newProps = n2.props || {};
+    let oldProps = n1.props || EMPEY_OBJECT;
+    let newProps = n2.props || EMPEY_OBJECT;
 
     patchProps(el as HTMLElement, oldProps, newProps);
   }
@@ -193,10 +194,12 @@ export function createRenderer(options: RendererOptions) {
       // 如: new : { foo : 'foo'}
       //     old : { foo : 'foo', bar : 'bar'}
       // 当前元素上则只有 foo
-      for (let key in oldProps) {
-        if (!(key in newProps)) {
-          let prevProps = oldProps[key];
-          hostPatchProps(el, key, prevProps, null);
+      if (oldProps !== EMPEY_OBJECT) {
+        for (let key in oldProps) {
+          if (!(key in newProps)) {
+            let prevProps = oldProps[key];
+            hostPatchProps(el, key, prevProps, null);
+          }
         }
       }
     }

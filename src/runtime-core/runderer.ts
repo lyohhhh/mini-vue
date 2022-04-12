@@ -173,10 +173,10 @@ export function createRenderer(options: RendererOptions) {
     let oldProps = n1.props || {};
     let newProps = n2.props || {};
 
-    patchProps(el, oldProps, newProps);
+    patchProps(el as HTMLElement, oldProps, newProps);
   }
 
-  function patchProps(el, oldProps, newProps) {
+  function patchProps(el: HTMLElement, oldProps, newProps) {
     if (oldProps !== newProps) {
       // 遍历新 props 添加 或者 修改 props
       for (const key in newProps) {
@@ -185,7 +185,7 @@ export function createRenderer(options: RendererOptions) {
         let nextProps = newProps[key];
         if (prevProps !== nextProps) {
           // 调用  createRenderer patchProps
-          hostPatchProps(el as HTMLElement, key, prevProps, nextProps);
+          hostPatchProps(el, key, prevProps, nextProps);
         }
       }
 
@@ -196,7 +196,7 @@ export function createRenderer(options: RendererOptions) {
       for (let key in oldProps) {
         if (!(key in newProps)) {
           let nextProps = newProps[key];
-          hostPatchProps(el as HTMLElement, key, null, nextProps);
+          hostPatchProps(el, key, null, nextProps);
         }
       }
     }

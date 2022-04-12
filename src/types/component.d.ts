@@ -51,11 +51,17 @@ declare interface Instance {
   parent: Instance | null;
   isMounted: boolean;
   prevTree?: VNode;
+  subTree: VNode | {};
 }
 
 declare interface RendererOptions {
   createElement: (type: string) => HTMLElement;
-  patchProp: (el: HTMLElement, key: string, value: Function | string) => void;
+  patchProps: (
+    el: HTMLElement,
+    key: string,
+    oldValue: Function | string | null,
+    newValue: Function | string
+  ) => void;
   insert: (el: HTMLElement, container: HTMLElement) => void;
 }
 

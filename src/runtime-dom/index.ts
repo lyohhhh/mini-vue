@@ -11,7 +11,7 @@ function patchProps(
   el: HTMLElement,
   key: string,
   oldValue: Function | string | null,
-  newValue: Function | string
+  newValue: Function | string | null
 ) {
   // 如果是绑定的事件
   // 绑定事件

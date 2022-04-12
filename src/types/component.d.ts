@@ -60,7 +60,7 @@ declare interface RendererOptions {
     el: HTMLElement,
     key: string,
     oldValue: Function | string | null,
-    newValue: Function | string
+    newValue: Function | string | null
   ) => void;
   insert: (el: HTMLElement, container: HTMLElement) => void;
 }

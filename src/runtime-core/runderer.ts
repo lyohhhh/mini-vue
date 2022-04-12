@@ -195,8 +195,8 @@ export function createRenderer(options: RendererOptions) {
       // 当前元素上则只有 foo
       for (let key in oldProps) {
         if (!(key in newProps)) {
-          let nextProps = newProps[key];
-          hostPatchProps(el, key, null, nextProps);
+          let prevProps = oldProps[key];
+          hostPatchProps(el, key, prevProps, null);
         }
       }
     }

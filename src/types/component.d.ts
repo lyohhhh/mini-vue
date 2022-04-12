@@ -59,6 +59,9 @@ declare interface RendererOptions {
   insert: (el: HTMLElement, container: HTMLElement) => void;
 }
 
+/**
+ * @description Vue 包名
+ */
 declare namespace Vue {
   type VNode = VNode;
   type Component = Component;

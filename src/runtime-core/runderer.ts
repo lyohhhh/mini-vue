@@ -204,8 +204,9 @@ export function createRenderer(options: RendererOptions) {
       }
     } else {
       if (prevShapeFlag & ShapeFlags.TEXT_CHILDREN) {
-        // hostSetElementText(container, "");
+        hostSetElementText(container, "");
         // TODO
+        mountChildren(n2, container, null);
       }
     }
   }

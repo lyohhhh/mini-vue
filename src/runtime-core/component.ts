@@ -21,6 +21,7 @@ export function createComponentInstance(
     props: {},
     emit: () => {},
     slots: {},
+    subTree: {},
     isMounted: false,
   };
   // 使用 bind 将 instance 实例传入

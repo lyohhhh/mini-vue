@@ -1,4 +1,5 @@
 import { effect } from "../reactivity/effect";
+import { EMPEY_OBJECT } from "../shared";
 import { ShapeFlags } from "../shared/shapeFlags";
 import { createComponentInstance, setupComponent } from "./component";
 import { createAppAPI } from "./createApp";
@@ -7,7 +8,11 @@ import { Fragment, Text } from "./vnode";
 // 使用 createRouterer 接口
 // 内部的  createElement, patchProp, insert 可以用户自己定义
 export function createRenderer(options: RendererOptions) {
-  const { createElement, patchProp, insert } = options;
+  const {
+    createElement: hostCreateElement,
+    patchProps: hostPatchProps,
+    insert: hostInsert,
+  } = options;
   function render(
     vnode: VNode,
     container: HTMLElement,
@@ -164,6 +169,40 @@ export function createRenderer(options: RendererOptions) {
     parentComponent: Instance | null
   ) {
     // console.log("update ");
+
+    let el = (n2.el = n1.el);
+    let oldProps = n1.props || EMPEY_OBJECT;
+    let newProps = n2.props || EMPEY_OBJECT;
+
+    patchProps(el as HTMLElement, oldProps, newProps);
+  }
+
+  function patchProps(el: HTMLElement, oldProps, newProps) {
+    if (oldProps !== newProps) {
+      // 遍历新 props 添加 或者 修改 props
+      for (const key in newProps) {
+        // 获取到新老节点 进行修改
+        let prevProps = oldProps[key];
+        let nextProps = newProps[key];
+        if (prevProps !== nextProps) {
+          // 调用  createRenderer patchProps
+          hostPatchProps(el, key, prevProps, nextProps);
+        }
+      }
+
+      // 如果老节点存在的值 在新节点上不存在 需要删除该值
+      // 如: new : { foo : 'foo'}
+      //     old : { foo : 'foo', bar : 'bar'}
+      // 当前元素上则只有 foo
+      if (oldProps !== EMPEY_OBJECT) {
+        for (let key in oldProps) {
+          if (!(key in newProps)) {
+            let prevProps = oldProps[key];
+            hostPatchProps(el, key, prevProps, null);
+          }
+        }
+      }
+    }
   }
 
   /**
@@ -179,13 +218,13 @@ export function createRenderer(options: RendererOptions) {
     // 写死创建节点 使用方法来创建节点
     // 挂载的元素不同
     // const el = document.createElement(<string>vnode.type);
-    const el = createElement(n2.type as string);
+    const el = hostCreateElement(n2.type as string);
     n2.el = el;
     mountAttributes(n2, el);
     mountChildren(n2, el, parentComponent);
 
     // container.append(el);
-    insert(el, container);
+    hostInsert(el, container);
   }
 
   /**
@@ -212,7 +251,7 @@ export function createRenderer(options: RendererOptions) {
       // }
 
       // 使用方法来创建
-      patchProp(container, key, val);
+      hostPatchProps(container, key, null, val);
     }
   }
 

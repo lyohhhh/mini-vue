@@ -12,6 +12,8 @@ export function createRenderer(options: RendererOptions) {
     createElement: hostCreateElement,
     patchProps: hostPatchProps,
     insert: hostInsert,
+    remove: hostRemove,
+    setElementText: hostSetElementText,
   } = options;
   function render(
     vnode: VNode,
@@ -175,6 +177,47 @@ export function createRenderer(options: RendererOptions) {
     let newProps = n2.props || EMPEY_OBJECT;
 
     patchProps(el as HTMLElement, oldProps, newProps);
+
+    patchChildren(el as HTMLElement, n1, n2);
+  }
+
+  function patchChildren(container: HTMLElement, n1: VNode, n2: VNode) {
+    // const shapeFlag = n1?.shapeFlag;
+    const { shapeFlag: prevShapeFlag, children: c1 } = n1;
+    const { shapeFlag, children: c2 } = n2;
+
+    // 当前节点是文本节点
+    // 处理
+    // 1.ArrayToText
+    // 2.TextToText
+    if (shapeFlag & ShapeFlags.TEXT_CHILDREN) {
+      console.log(c1);
+      console.log("----------");
+      console.log(c2);
+      // 如果之前的文本节点 与 当前的文本节点不一致的话 更新文本节点
+      // 因为当前的 children 为文本节点 所以只需要修改 text 就行
+      if (prevShapeFlag & ShapeFlags.ARRAY_CHILDREN) {
+        unmountChildren(c1 as VNode[]);
+      }
+      if (c1 !== c2) {
+        hostSetElementText(container, c2 as string);
+      }
+    } else {
+      if (prevShapeFlag & ShapeFlags.TEXT_CHILDREN) {
+        // hostSetElementText(container, "");
+        // TODO
+      }
+    }
+  }
+
+  /**
+   * 清除元素里面的子节点
+   */
+  function unmountChildren(children: VNode[]) {
+    for (let i = 0; i < children.length; i++) {
+      let el = children[i].el;
+      hostRemove(el as HTMLElement);
+    }
   }
 
   function patchProps(el: HTMLElement, oldProps, newProps) {

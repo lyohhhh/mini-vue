@@ -34,14 +34,35 @@ function patchProps(
   }
 }
 
+// 设置元素 text
+function setElementText(container: HTMLElement, text: string) {
+  console.log(container, text);
+
+  container.textContent = text;
+}
+
 // 添加元素
 function insert(el: HTMLElement, container: HTMLElement) {
   container.append(el);
 }
 
+// 删除元素
+function remove(child: HTMLElement) {
+  let parent = child.parentNode;
+  if (parent) {
+    parent.removeChild(child);
+  }
+}
+
 // 提供 createRenderer 函数
 // 内部返回 createApp 接口
-const renderer = createRenderer({ createElement, patchProps, insert });
+const renderer = createRenderer({
+  createElement,
+  patchProps,
+  insert,
+  remove,
+  setElementText,
+});
 
 // 返回createApp 接口 -》 返回的是 createRouterer 内部返回的createAoo
 export function createApp(rootComponent: Component) {

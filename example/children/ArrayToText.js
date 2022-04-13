@@ -1,7 +1,7 @@
 import { h, ref } from "../../lib/guide-vue.esm.js";
 
 const prevChildren = [h("div", null, [h("p", null, "A"), h("p", null, "B")])];
-const nextChildren = "prevChildren";
+const nextChildren = "nextChildren";
 export const ArrayToText = {
   name: "App",
   render() {

@@ -63,6 +63,8 @@ declare interface RendererOptions {
     newValue: Function | string | null
   ) => void;
   insert: (el: HTMLElement, container: HTMLElement) => void;
+  remove: (child: HTMLElement) => void;
+  setElementText: (el: HTMLElement, value: string) => void;
 }
 
 /**

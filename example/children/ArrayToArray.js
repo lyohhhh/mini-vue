@@ -8,9 +8,9 @@ const nextChildren = [
       {
         id: "C",
       },
-      [h("div", null, [h("p", null, "A"), h("p", null, "B")])]
+      [h("div", null, [h("p", null, "E"), h("p", null, "f")])]
     ),
-    h("p", { id: "D" }, "D"),
+    h("p", { id: "G" }, "G"),
   ]),
 ];
 export const ArrayToArray = {

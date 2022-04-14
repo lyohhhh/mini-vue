@@ -178,10 +178,15 @@ export function createRenderer(options: RendererOptions) {
 
     patchProps(el as HTMLElement, oldProps, newProps);
 
-    patchChildren(el as HTMLElement, n1, n2);
+    patchChildren(el as HTMLElement, n1, n2, parentComponent);
   }
 
-  function patchChildren(container: HTMLElement, n1: VNode, n2: VNode) {
+  function patchChildren(
+    container: HTMLElement,
+    n1: VNode,
+    n2: VNode,
+    parentComponent: Instance | null
+  ) {
     // const shapeFlag = n1?.shapeFlag;
     const { shapeFlag: prevShapeFlag, children: c1 } = n1;
     const { shapeFlag, children: c2 } = n2;
@@ -206,8 +211,9 @@ export function createRenderer(options: RendererOptions) {
       if (prevShapeFlag & ShapeFlags.TEXT_CHILDREN) {
         hostSetElementText(container, "");
         // TODO
-        mountChildren(n2, container, null);
       }
+      unmountChildren(c1 as VNode[]);
+      mountChildren(n2, container, parentComponent);
     }
   }
 

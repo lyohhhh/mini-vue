@@ -33,14 +33,15 @@ export function createRenderer(options: RendererOptions) {
     n1: VNode | null,
     n2: VNode,
     container: HTMLElement,
-    parentComponent: Instance | null = null
+    parentComponent: Instance | null = null,
+    anchor: HTMLElement | null = null
   ) {
     // debugger;
     const { type, shapeFlag } = n2;
     switch (type) {
       case Fragment:
         // Fragment 不创建标签 直接添加在 container 上
-        processFragment(n1, n2, container);
+        processFragment(n1, n2, container, parentComponent, anchor);
         break;
 
       case Text:
@@ -50,10 +51,10 @@ export function createRenderer(options: RendererOptions) {
       default:
         if (shapeFlag & ShapeFlags.ELEMENT_NODE) {
           // 处理 Element
-          processElement(n1, n2, container, parentComponent);
+          processElement(n1, n2, container, parentComponent, anchor);
         } else if (shapeFlag & ShapeFlags.STATEFUL_COMPONENT) {
           // 处理组件
-          processComponent(n1, n2, container, parentComponent);
+          processComponent(n1, n2, container, parentComponent, anchor);
         }
         break;
     }
@@ -63,15 +64,17 @@ export function createRenderer(options: RendererOptions) {
     n1: VNode | null,
     n2: VNode,
     container: HTMLElement,
-    parentComponent: Instance | null = null
+    parentComponent: Instance | null = null,
+    anchor: HTMLElement | null = null
   ) {
     // 1.先挂载组件
-    mountComponent(n2, container, parentComponent);
+    mountComponent(n2, container, parentComponent, anchor);
   }
   function mountComponent(
     vnode: VNode,
     container: HTMLElement,
-    parentComponent: Instance | null = null
+    parentComponent: Instance | null = null,
+    anchor: HTMLElement | null = null
   ) {
     // debugger;
     // 1.先创建组件实例 获取实例
@@ -79,9 +82,13 @@ export function createRenderer(options: RendererOptions) {
     // 2.调用 setup
     setupComponent(instance);
     // 3.调用 render
-    setupRenderEffect(instance, container);
+    setupRenderEffect(instance, container, anchor);
   }
-  function setupRenderEffect(instance: Instance, container: HTMLElement) {
+  function setupRenderEffect(
+    instance: Instance,
+    container: HTMLElement,
+    anchor: HTMLElement | null = null
+  ) {
     effect(() => {
       if (instance.render) {
         // 判断是否是 虚拟节点初始化
@@ -96,7 +103,7 @@ export function createRenderer(options: RendererOptions) {
           instance.prevTree = subTree;
           // 对返回的 虚拟节点进行挂载
           // vnode -> element => mountElement
-          patch(null, subTree, container, instance);
+          patch(null, subTree, container, instance, anchor);
           // 将根元素节点 挂载在 setupState 上
           instance.el = subTree.el;
           instance.isMounted = true;
@@ -106,7 +113,7 @@ export function createRenderer(options: RendererOptions) {
           // 将当前的 虚拟节点进行保存
           // update Element 时 对新旧 Vnode 进行比较
           instance.prevTree = subTree;
-          patch(prevTree, subTree, container, instance);
+          patch(prevTree, subTree, container, instance, anchor);
         }
       }
     });
@@ -119,19 +126,20 @@ export function createRenderer(options: RendererOptions) {
     n1: VNode | null,
     n2: VNode,
     container: HTMLElement,
-    parentComponent: Instance | null = null
+    parentComponent: Instance | null = null,
+    anchor: HTMLElement | null = null
   ) {
     // n1 不存在就代表是初始化
     if (!n1) {
-      console.log(" init ");
+      // console.log(" init ");
 
-      mountElement(n2, container, parentComponent);
+      mountElement(n2, container, parentComponent, anchor);
     } else {
-      console.log(" update ");
-      console.log(n1);
-      console.log(n2);
+      // console.log(" update ");
+      // console.log(n1);
+      // console.log(n2);
 
-      patchElement(n1, n2, container, parentComponent);
+      patchElement(n1, n2, container, parentComponent, anchor);
     }
   }
   /**
@@ -152,12 +160,14 @@ export function createRenderer(options: RendererOptions) {
   function processFragment(
     n1: VNode | null,
     n2: VNode,
-    container: HTMLElement
+    container: HTMLElement,
+    parentComponent: Instance | null = null,
+    anchor: HTMLElement | null = null
   ) {
     // 省略  const el = await mountTag(vnode);
     //       mountAttributes(vnode, el);
     // 直接将 children 添加在 container 上
-    mountChildren(n2, container);
+    mountChildren(n2, container, parentComponent, anchor);
   }
 
   /**
@@ -168,7 +178,8 @@ export function createRenderer(options: RendererOptions) {
     n1: VNode,
     n2: VNode,
     container: HTMLElement,
-    parentComponent: Instance | null
+    parentComponent: Instance | null,
+    anchor: HTMLElement | null = null
   ) {
     // console.log("update ");
 
@@ -178,14 +189,15 @@ export function createRenderer(options: RendererOptions) {
 
     patchProps(el as HTMLElement, oldProps, newProps);
 
-    patchChildren(el as HTMLElement, n1, n2, parentComponent);
+    patchChildren(el as HTMLElement, n1, n2, parentComponent, anchor);
   }
 
   function patchChildren(
     container: HTMLElement,
     n1: VNode,
     n2: VNode,
-    parentComponent: Instance | null
+    parentComponent: Instance | null,
+    anchor: HTMLElement | null = null
   ) {
     // const shapeFlag = n1?.shapeFlag;
     const { shapeFlag: prevShapeFlag, children: c1 } = n1;
@@ -196,24 +208,108 @@ export function createRenderer(options: RendererOptions) {
     // 1.ArrayToText
     // 2.TextToText
     if (shapeFlag & ShapeFlags.TEXT_CHILDREN) {
-      console.log(c1);
-      console.log("----------");
-      console.log(c2);
+      // console.log(c1);
+      // console.log("----------");
+      // console.log(c2);
       // 如果之前的文本节点 与 当前的文本节点不一致的话 更新文本节点
       // 因为当前的 children 为文本节点 所以只需要修改 text 就行
       if (prevShapeFlag & ShapeFlags.ARRAY_CHILDREN) {
         unmountChildren(c1 as VNode[]);
       }
+      // diff 时 不相同才进行创建
       if (c1 !== c2) {
         hostSetElementText(container, c2 as string);
       }
     } else {
       if (prevShapeFlag & ShapeFlags.TEXT_CHILDREN) {
         hostSetElementText(container, "");
-        // TODO
+        mountChildren(n2, container, parentComponent, anchor);
+      } else {
+        // array diff array
+        patchKeyedChildren(
+          c1 as VNode[],
+          c2 as VNode[],
+          container,
+          parentComponent,
+          anchor
+        );
       }
-      unmountChildren(c1 as VNode[]);
-      mountChildren(n2, container, parentComponent);
+    }
+  }
+
+  // diff
+  function patchKeyedChildren(
+    c1: VNode[],
+    c2: VNode[],
+    container: HTMLElement,
+    parentComponent: Instance | null,
+    parentAnchor: HTMLElement | null = null
+  ) {
+    let l2 = c2.length;
+    let i = 0; // 遍历的下标
+    let e1 = c1.length - 1; // 老节点的下标
+    let e2 = l2 - 1; // 新节点的下标
+    function isSomeVNodeType(n1: VNode, n2: VNode): boolean {
+      // type
+      // key
+      return n1.type === n2.type && n1.key === n2.key;
+    }
+
+    // 开始从左侧进行对比
+    while (i <= e1 && i <= e2) {
+      // 获取到最左侧的节点进行对比
+      let n1 = c1[i];
+      let n2 = c2[i];
+      // 判断是否新旧节点一致
+      if (isSomeVNodeType(n1, n2)) {
+        // 防止 children 里面还是数组
+        // 进行递归
+        patch(n1, n2, container, parentComponent, parentAnchor);
+      } else {
+        break;
+      }
+      i++;
+    }
+
+    // 开始从右侧进行对比
+    while (i <= e1 && i <= e2) {
+      // 获取到最右侧的节点进行对比
+      let n1 = c1[e1];
+      let n2 = c2[e2];
+      // 判断是否新旧节点一致
+      if (isSomeVNodeType(n1, n2)) {
+        // 防止 children 里面还是数组
+        // 进行递归
+        patch(n1, n2, container, parentComponent, parentAnchor);
+      } else {
+        break;
+      }
+      e1--;
+      e2--;
+    }
+
+    console.log(i, e1, e2);
+    // 新节点比老节点多
+    if (i > e1) {
+      if (i <= e2) {
+        const nextPos = e2 + 1;
+        const anchor = nextPos >= l2 ? null : c2[nextPos].el;
+        while (i <= e2) {
+          patch(
+            null,
+            c2[i],
+            container,
+            parentComponent,
+            anchor as HTMLElement | null
+          );
+          i++;
+        }
+      }
+    } else if (i > e2) {
+      while (i <= e1) {
+        hostRemove(<HTMLElement>c1[i].el);
+        i++;
+      }
     }
   }
 
@@ -262,7 +358,8 @@ export function createRenderer(options: RendererOptions) {
   function mountElement(
     n2: VNode,
     container: HTMLElement,
-    parentComponent: Instance | null = null
+    parentComponent: Instance | null = null,
+    anchor: HTMLElement | null = null
   ) {
     // const el = await mountTag(vnode);
     // 写死创建节点 使用方法来创建节点
@@ -274,7 +371,7 @@ export function createRenderer(options: RendererOptions) {
     mountChildren(n2, el, parentComponent);
 
     // container.append(el);
-    hostInsert(el, container);
+    hostInsert(el, container, anchor);
   }
 
   /**
@@ -311,7 +408,8 @@ export function createRenderer(options: RendererOptions) {
   function mountChildren(
     vnode: VNode,
     container: HTMLElement,
-    parentComponent: Instance | null = null
+    parentComponent: Instance | null = null,
+    anchor: HTMLElement | null = null
   ) {
     const { children } = vnode;
     if (vnode.shapeFlag & ShapeFlags.TEXT_CHILDREN) {
@@ -320,7 +418,7 @@ export function createRenderer(options: RendererOptions) {
       // TODO
       // 数组类型
       (children as VNode[]).forEach((item) => {
-        item && patch(null, item, container, parentComponent);
+        item && patch(null, item, container, parentComponent, anchor);
       });
     }
   }

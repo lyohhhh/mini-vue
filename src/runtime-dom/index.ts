@@ -42,8 +42,12 @@ function setElementText(container: HTMLElement, text: string) {
 }
 
 // 添加元素
-function insert(el: HTMLElement, container: HTMLElement) {
-  container.append(el);
+function insert(
+  el: HTMLElement,
+  parent: HTMLElement,
+  anchor: HTMLElement | null = null
+) {
+  parent.insertBefore(el, anchor);
 }
 
 // 删除元素

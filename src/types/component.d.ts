@@ -35,6 +35,7 @@ declare interface VNode {
   children?: string | VNode[];
   el?: HTMLElement | Text | null;
   shapeFlag: int;
+  key: string;
 }
 
 declare interface Instance {
@@ -62,7 +63,11 @@ declare interface RendererOptions {
     oldValue: Function | string | null,
     newValue: Function | string | null
   ) => void;
-  insert: (el: HTMLElement, container: HTMLElement) => void;
+  insert: (
+    el: HTMLElement,
+    container: HTMLElement,
+    anchor: HTMLElement | null = null
+  ) => void;
   remove: (child: HTMLElement) => void;
   setElementText: (el: HTMLElement, value: string) => void;
 }

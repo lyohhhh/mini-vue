@@ -310,6 +310,109 @@ export function createRenderer(options: RendererOptions) {
         hostRemove(<HTMLElement>c1[i].el);
         i++;
       }
+    } else {
+      // 中间对比
+      // 获取到 中间部分同的起始下标
+      let s1 = i;
+      let s2 = i;
+      // 获取新节点中间部分的数量
+      const toBePatched = e2 - i + 1;
+      // 已经修改过的数量
+      let patched = 0;
+      // 新老节点新增 | 删除映射
+      const keyToNewIndexMap = new Map();
+      // 新老节点位置映射
+      const newIndexToOldIndexMap = new Array(toBePatched);
+      // 0 -> 没有建立映射关系
+      for (let i = 0; i < toBePatched; i++) newIndexToOldIndexMap[i] = 0;
+      // 创建是否移动 flag
+      // 防止多次调用 递增子序列
+      let moved = false;
+      let maxNewIndexSofar = 0;
+      // 遍历新节点建立映射关系
+      for (let i = s2; i <= e2; i++) {
+        let nextChild = c2[i];
+        keyToNewIndexMap.set(nextChild.key, i);
+      }
+      for (let i = s1; i <= e1; i++) {
+        // 获取之前的节点
+        let prevChild = c1[i];
+        // 修改的数量超过 应该修改的数量 说明老节点中的节点在新节点中不存在
+        // 直接删除老节点
+        if (patched >= toBePatched) {
+          hostRemove(prevChild.el as HTMLElement);
+          continue;
+        }
+
+        let newIndex;
+        // 设置 key 的话
+        if (prevChild.key != null) {
+          // 获取映射关系
+          newIndex = keyToNewIndexMap.get(prevChild.key);
+        } else {
+          // 没有设置 key
+          for (let j = s2; i <= e2; j++) {
+            // 遍历 判断相同
+            if (isSomeVNodeType(prevChild, c2[j])) {
+              newIndex = j;
+              break;
+            }
+          }
+        }
+
+        // 判断 newIndex 是否为空
+        // 为空既是 老节点在新节点中找不到
+        // 执行删除操作
+        if (newIndex === undefined) {
+          hostRemove(prevChild.el as HTMLElement);
+        } else {
+          if (newIndex >= maxNewIndexSofar) {
+            maxNewIndexSofar = newIndex;
+          } else {
+            moved = true;
+          }
+          // 建立新老位置映射
+          newIndexToOldIndexMap[newIndex - s2] = i + 1;
+          // 否则递归调用 patch 对当前节点进行修改
+          patch(prevChild, c2[newIndex], container, parentComponent, null);
+          patched++;
+        }
+      }
+
+      // 获取最长递增子序列
+      const increasingNewIndexSequence = moved
+        ? getSequence(newIndexToOldIndexMap)
+        : [];
+
+      // 双指针判断是否需要移动
+      let k = increasingNewIndexSequence.length - 1;
+      for (let i = toBePatched - 1; i >= 0; i--) {
+        const nextIndex = i + s2;
+        const nextChild = c2[nextIndex].el;
+        const anchor = nextIndex + 1 < l2 ? c2[nextIndex + 1].el : null;
+        // 判断新节点是否建立映射
+        // 没有建立默认创建新节点
+        if (newIndexToOldIndexMap[i] === 0) {
+          patch(
+            null,
+            c2[nextIndex],
+            container,
+            parentComponent,
+            anchor as HTMLElement | null
+          );
+        } else if (moved) {
+          // 判断是否需要移动元素
+          if (k < 0 || i !== increasingNewIndexSequence[k]) {
+            hostInsert(
+              nextChild as HTMLElement,
+              container,
+              anchor as HTMLElement | null
+            );
+          } else {
+            k--;
+          }
+        }
+      }
     }
   }
 
@@ -426,4 +529,46 @@ export function createRenderer(options: RendererOptions) {
   return {
     createApp: createAppAPI(render),
   };
+}
+
+// 获取 最长递增子序列
+function getSequence(arr: number[]): number[] {
+  const p = arr.slice();
+  const result = [0];
+  let i, j, u, v, c;
+  const len = arr.length;
+  for (i = 0; i < len; i++) {
+    const arrI = arr[i];
+    if (arrI !== 0) {
+      j = result[result.length - 1];
+      if (arr[j] < arrI) {
+        p[i] = j;
+        result.push(i);
+        continue;
+      }
+      u = 0;
+      v = result.length - 1;
+      while (u < v) {
+        c = (u + v) >> 1;
+        if (arr[result[c]] < arrI) {
+          u = c + 1;
+        } else {
+          v = c;
+        }
+      }
+      if (arrI < arr[result[u]]) {
+        if (u > 0) {
+          p[i] = result[u - 1];
+        }
+        result[u] = i;
+      }
+    }
+  }
+  u = result.length;
+  v = result[u - 1];
+  while (u-- > 0) {
+    result[u] = v;
+    v = p[v];
+  }
+  return result;
 }

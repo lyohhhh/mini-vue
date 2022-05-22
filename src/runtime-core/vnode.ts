@@ -20,6 +20,7 @@ export function createVNode(type, props?, children?): VNode {
     props: props || {},
     children,
     el: null,
+    component: null,
     key: props && props.key,
     // 判断当前 vnode 类型
     shapeFlag: getShapeFlag(type),

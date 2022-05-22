@@ -2,6 +2,7 @@ import { effect } from "../reactivity/effect";
 import { EMPEY_OBJECT } from "../shared";
 import { ShapeFlags } from "../shared/shapeFlags";
 import { createComponentInstance, setupComponent } from "./component";
+import { shouldUpdateComponent } from "./componentUpdateUtils";
 import { createAppAPI } from "./createApp";
 import { Fragment, Text } from "./vnode";
 
@@ -67,9 +68,27 @@ export function createRenderer(options: RendererOptions) {
     parentComponent: Instance | null = null,
     anchor: HTMLElement | null = null
   ) {
-    // 1.先挂载组件
-    mountComponent(n2, container, parentComponent, anchor);
+    if (!n1) {
+      // 1.先挂载组件
+      mountComponent(n2, container, parentComponent, anchor);
+    } else {
+      updateComponent(n1, n2);
+    }
   }
+
+  // 更新组件
+  function updateComponent(n1: VNode, n2: VNode) {
+    const instance = (n2.component = n1.component) as Instance;
+    if (shouldUpdateComponent(n1, n2)) {
+      instance.next = n2;
+      (instance.update as Function)();
+    } else {
+      n2.el = n1.el;
+      instance.vnode = n2;
+    }
+  }
+
+  // 创建组件
   function mountComponent(
     vnode: VNode,
     container: HTMLElement,
@@ -78,7 +97,10 @@ export function createRenderer(options: RendererOptions) {
   ) {
     // debugger;
     // 1.先创建组件实例 获取实例
-    const instance = createComponentInstance(vnode, parentComponent);
+    const instance = (vnode.component = createComponentInstance(
+      vnode,
+      parentComponent
+    ));
     // 2.调用 setup
     setupComponent(instance);
     // 3.调用 render
@@ -89,7 +111,7 @@ export function createRenderer(options: RendererOptions) {
     container: HTMLElement,
     anchor: HTMLElement | null = null
   ) {
-    effect(() => {
+    instance.update = effect(() => {
       if (instance.render) {
         // 判断是否是 虚拟节点初始化
         if (!instance.isMounted) {
@@ -108,7 +130,15 @@ export function createRenderer(options: RendererOptions) {
           instance.el = subTree.el;
           instance.isMounted = true;
         } else {
-          const subTree = instance.render.call(instance.proxy);
+          const { proxy } = instance;
+          // next 为需要更新的
+          // vnode 为当前的
+          const { next, vnode } = instance;
+          if (next) {
+            next.el = vnode.el;
+            updateComponentPreRender(instance, next);
+          }
+          const subTree = instance.render.call(proxy);
           const prevTree = instance.prevTree as VNode;
           // 将当前的 虚拟节点进行保存
           // update Element 时 对新旧 Vnode 进行比较
@@ -117,6 +147,12 @@ export function createRenderer(options: RendererOptions) {
         }
       }
     });
+  }
+  // 更新之前将 实例上的属性赋值
+  function updateComponentPreRender(instance: Instance, nextVNode: VNode) {
+    instance.vnode = nextVNode;
+    instance.next = undefined;
+    instance.props = nextVNode.props;
   }
 
   /**

@@ -36,6 +36,7 @@ declare interface VNode {
   el?: HTMLElement | Text | null;
   shapeFlag: int;
   key: string;
+  component: Instance | null;
 }
 
 declare interface Instance {
@@ -53,6 +54,8 @@ declare interface Instance {
   isMounted: boolean;
   prevTree?: VNode;
   subTree: VNode | {};
+  update?: Function;
+  next?: VNode;
 }
 
 declare interface RendererOptions {

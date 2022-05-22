@@ -43,7 +43,7 @@ function setElementText(container: HTMLElement, text: string) {
 
 // 添加元素
 function insert(
-  el: HTMLElement,
+  el: HTMLElement | Text,
   parent: HTMLElement,
   anchor: HTMLElement | null = null
 ) {

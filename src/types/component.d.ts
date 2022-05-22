@@ -67,7 +67,7 @@ declare interface RendererOptions {
     newValue: Function | string | null
   ) => void;
   insert: (
-    el: HTMLElement,
+    el: HTMLElement | Text,
     container: HTMLElement,
     anchor: HTMLElement | null = null
   ) => void;

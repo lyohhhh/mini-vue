@@ -182,12 +182,19 @@ export function createRenderer(options: RendererOptions) {
    * 处理 Text
    */
   function processText(n1: VNode | null, n2: VNode, container: HTMLElement) {
-    // 获取到 string
-    const { children } = n2;
-    // 创建文本节点
-    const textNode = (n2.el = document.createTextNode(children as string));
-    // 添加到元素上
-    container.append(textNode);
+    // 初始化节点
+    if (n1 === null) {
+      hostInsert(
+        (n2.el = document.createTextNode(n2.children as string)),
+        container
+      );
+    } else {
+      // 如果不一样 改变文本节点
+      if (n2.children !== n1.children) {
+        const el = (n2.el = n1.el!);
+        el.nodeValue = n2.children as string;
+      }
+    }
   }
 
   /**

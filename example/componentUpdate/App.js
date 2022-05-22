@@ -21,7 +21,7 @@ export const App = {
         },
         "改变Count"
       ),
-      h("span", null, this.count),
+      createTextVNode(this.count),
     ]);
   },
   setup() {

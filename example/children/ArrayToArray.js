@@ -96,24 +96,24 @@ import { h, ref } from "../../lib/guide-vue.esm.js";
 //   7.2 新节点 少了节点
 //   7.3 新旧节点交换位置
 const prevChildren = [
-  h("p", { key: "A" }, "A"),
-  h("p", { key: "B" }, "B"),
-  h("p", { key: "C", id: "prev" }, "C"),
-  h("p", { key: "D" }, "D"),
-  h("p", { key: "E" }, "E"),
-  h("p", { key: "Z" }, "Z"),
-  h("p", { key: "F" }, "F"),
-  h("p", { key: "G" }, "G"),
+  h("p", {}, "A"),
+  h("p", {}, "B"),
+  h("p", { id: "prev" }, "C"),
+  h("p", {}, "D"),
+  h("p", {}, "E"),
+  h("p", {}, "Z"),
+  h("p", {}, "F"),
+  h("p", {}, "G"),
 ];
 const nextChildren = [
-  h("p", { key: "A" }, "A"),
-  h("p", { key: "B" }, "B"),
-  h("p", { key: "E" }, "E"),
-  h("p", { key: "C", id: "next" }, "C"),
-  h("p", { key: "Q" }, "Q"),
-  h("p", { key: "D", id: "D" }, "D"),
-  h("p", { key: "F" }, "F"),
-  h("p", { key: "G" }, "G"),
+  h("p", {}, "A"),
+  h("p", {}, "B"),
+  h("p", {}, "E"),
+  h("p", { id: "next" }, "C"),
+  h("p", {}, "Q"),
+  h("p", { id: "D" }, "D"),
+  h("p", {}, "F"),
+  h("p", {}, "G"),
 ];
 
 export const ArrayToArray = {

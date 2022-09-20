@@ -47,4 +47,4 @@ export const isEvent: (str: string) => boolean = (str): boolean => {
   return /^on[A-Z]/.test(str);
 };
 
-export const EMPEY_OBJECT = {};
+export const EMPTY_OBJECT = {};

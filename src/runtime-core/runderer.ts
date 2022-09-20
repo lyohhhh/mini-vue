@@ -89,6 +89,7 @@ export function createRenderer(options: RendererOptions) {
   }
 
   // 创建组件
+  // TODO: NEXTTICK
   function mountComponent(
     vnode: VNode,
     container: HTMLElement,

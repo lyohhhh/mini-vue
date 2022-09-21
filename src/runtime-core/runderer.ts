@@ -4,6 +4,7 @@ import { ShapeFlags } from "../shared/shapeFlags";
 import { createComponentInstance, setupComponent } from "./component";
 import { shouldUpdateComponent } from "./componentUpdateUtils";
 import { createAppAPI } from "./createApp";
+import { queueJobs } from "./scheduler";
 import { Fragment, Text } from "./vnode";
 
 // 使用 createRouterer 接口
@@ -112,42 +113,52 @@ export function createRenderer(options: RendererOptions) {
     container: HTMLElement,
     anchor: HTMLElement | null = null
   ) {
-    instance.update = effect(() => {
-      if (instance.render) {
-        // 判断是否是 虚拟节点初始化
-        if (!instance.isMounted) {
-          // 返回的 虚拟节点
-          // render 函数中可能使用了 this
-          // 所以在赋值给实例之前 将 this 指向 proxy 代理的对象上
-          // 包括 props 都是通过代理来访问的
-          const subTree = instance.render.call(instance.proxy);
-          // 将当前的 虚拟节点进行保存
-          // update Element 时 对新旧 Vnode 进行比较
-          instance.prevTree = subTree;
-          // 对返回的 虚拟节点进行挂载
-          // vnode -> element => mountElement
-          patch(null, subTree, container, instance, anchor);
-          // 将根元素节点 挂载在 setupState 上
-          instance.el = subTree.el;
-          instance.isMounted = true;
-        } else {
-          const { proxy } = instance;
-          // next 为需要更新的
-          // vnode 为当前的
-          const { next, vnode } = instance;
-          if (next) {
-            next.el = vnode.el;
-            updateComponentPreRender(instance, next);
+    instance.update = effect(
+      () => {
+        if (instance.render) {
+          // 判断是否是 虚拟节点初始化
+          if (!instance.isMounted) {
+            // 返回的 虚拟节点
+            // render 函数中可能使用了 this
+            // 所以在赋值给实例之前 将 this 指向 proxy 代理的对象上
+            // 包括 props 都是通过代理来访问的
+            const subTree = instance.render.call(instance.proxy);
+            // 将当前的 虚拟节点进行保存
+            // update Element 时 对新旧 Vnode 进行比较
+            instance.prevTree = subTree;
+            // 对返回的 虚拟节点进行挂载
+            // vnode -> element => mountElement
+            patch(null, subTree, container, instance, anchor);
+            // 将根元素节点 挂载在 setupState 上
+            instance.el = subTree.el;
+            instance.isMounted = true;
+          } else {
+            const { proxy } = instance;
+            // next 为需要更新的
+            // vnode 为当前的
+            const { next, vnode } = instance;
+            if (next) {
+              next.el = vnode.el;
+              updateComponentPreRender(instance, next);
+            }
+            const subTree = instance.render.call(proxy);
+            const prevTree = instance.prevTree as VNode;
+            // 将当前的 虚拟节点进行保存
+            // update Element 时 对新旧 Vnode 进行比较
+            instance.prevTree = subTree;
+            patch(prevTree, subTree, container, instance, anchor);
           }
-          const subTree = instance.render.call(proxy);
-          const prevTree = instance.prevTree as VNode;
-          // 将当前的 虚拟节点进行保存
-          // update Element 时 对新旧 Vnode 进行比较
-          instance.prevTree = subTree;
-          patch(prevTree, subTree, container, instance, anchor);
         }
+      },
+      {
+        // 使用 scheduler 防止同步代码
+        // 即 宏任务 与 微任务
+        scheduler: () => {
+          console.log("update - scheduler");
+          queueJobs(instance.update as Function);
+        },
       }
-    });
+    );
   }
   // 更新之前将 实例上的属性赋值
   function updateComponentPreRender(instance: Instance, nextVNode: VNode) {
@@ -289,6 +300,9 @@ export function createRenderer(options: RendererOptions) {
     parentComponent: Instance | null,
     parentAnchor: HTMLElement | null = null
   ) {
+    console.log(c1);
+    console.log(c2);
+
     let l2 = c2.length;
     let i = 0; // 遍历的下标
     let e1 = c1.length - 1; // 老节点的下标

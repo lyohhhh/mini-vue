@@ -2,7 +2,7 @@ import { hasChanged, isObject } from "../shared";
 import { trackEffects, triggerEffects, isTracking } from "./effect";
 import { reactive } from "./reactive";
 
-class Refimpl<T> {
+class RefImpl<T> {
   private _value: T;
   // 收集依赖的箱子
   public dep: Set<typeof this._value>;
@@ -43,7 +43,7 @@ function convert(val) {
 /**
  * 收集 dep
  */
-function trackRef(ref: Refimpl<unknown>) {
+function trackRef(ref: RefImpl<unknown>) {
   // 是否处在收集依赖中 是的话则收集依赖
   if (isTracking()) {
     // 收集依赖
@@ -54,8 +54,8 @@ function trackRef(ref: Refimpl<unknown>) {
 /**
  * @description ref
  */
-export function ref<T>(val: T): Refimpl<T> {
-  return new Refimpl<typeof val>(val);
+export function ref<T>(val: T): RefImpl<T> {
+  return new RefImpl<typeof val>(val);
 }
 
 /**

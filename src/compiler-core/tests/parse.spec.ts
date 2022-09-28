@@ -1,3 +1,5 @@
+import { baseParse } from "../src/parse";
+
 describe("Parse", () => {
   describe("interpolation", () => {
     it("simple interpolation", () => {

@@ -9,7 +9,11 @@ export type Content = {
 };
 
 // 转换 ast
-export const baseParse = (content: string): any => {
+export const baseParse = (
+  content: string
+): {
+  children: Content[];
+} => {
   const context = createParserContext(content);
   return createRoot(parseChildren(context));
 };
@@ -25,15 +29,13 @@ const parseInterpolation = (context: Context): Content => {
     openDelimiter.length
   );
   // 推进两位 排除 {{
-  context.source = context.source.slice(openDelimiter.length);
+  advanceBy(context, openDelimiter.length);
   // 减去 }} 两位
   const rawContentLength = closeIndex - closeDelimiter.length;
   // 得到 message
   const content = context.source.slice(0, rawContentLength);
   // 将已经替换的删除
-  context.source = context.source.slice(
-    rawContentLength + openDelimiter.length
-  );
+  advanceBy(context, rawContentLength + openDelimiter.length);
 
   return {
     type: "interpolation",
@@ -42,6 +44,11 @@ const parseInterpolation = (context: Context): Content => {
       content,
     },
   };
+};
+
+// 修改推进
+const advanceBy = (context: Context, len: number): void => {
+  context.source = context.source.slice(len);
 };
 
 // 创建 children

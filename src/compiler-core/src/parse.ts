@@ -1,10 +1,12 @@
+import { NodeTypes } from "./ast";
+
 export type Context = {
   source: string;
   children?: Array<Content>;
 };
 
 export type Content = {
-  type: string;
+  type: number;
   content: Content | string;
 };
 
@@ -38,9 +40,9 @@ const parseInterpolation = (context: Context): Content => {
   advanceBy(context, rawContentLength + openDelimiter.length);
 
   return {
-    type: "interpolation",
+    type: NodeTypes.INTERPOLATION,
     content: {
-      type: "simple_expression",
+      type: NodeTypes.SIMPLE_EXPRESSION,
       content,
     },
   };

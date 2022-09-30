@@ -21,7 +21,7 @@ describe("Parse", () => {
     it("element div", () => {
       const ast = baseParse("<div></div>");
       expect(ast.children[0]).toStrictEqual({
-        type: NodeTypes.INTERPOLATION,
+        type: NodeTypes.ELEMENT,
         tag: "div",
       });
     });

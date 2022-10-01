@@ -56,7 +56,15 @@ const advanceBy = (context: Context, len: number): void => {
 // 创建 children
 const parseChildren = (context: Context): Array<Content> => {
   const nodes: Array<Content> = [];
-  nodes.push(parseInterpolation(context));
+  let node;
+  if (context.source.startsWith("{{")) {
+    node = parseInterpolation(context);
+  } else if (context.source[0] === "<") {
+    if (/a-z/i.test(context.source[1])) {
+      console.log("parse element");
+    }
+  }
+  nodes.push(node);
   return nodes;
 };
 
